@@ -55,6 +55,17 @@ python examples.py [--cpu | --nvidia | --metax | --moore | --iluvatar]
 python examples.py --nvidia
 ```
 
+## 各平台测试情况
+有3个pr需要合并，合并后的测试：
+- NVIDIA : 符合预期
+- METAX ： 符合预期
+- MOORE ： 结果对，但运行结果会卡住一会，然后报段错误之类的
+- ILUVATAR ： 运行代码卡住，无响应
+- HYGON ： InfiniCore无法编译，缺少cuda_fp8.h头文件
+
+详细测试结果，见飞书文档xxx。
+
+
 ## 该仓库的任务需求
 1. **三段式接口演示**：一个简单的 C++ 程序，调用 InfiniOP 矩阵乘法接口并打印输入/输出
 2. **Python 接口演示**：一个 PyTorch 风格的 MLP 模块，文件顶部有可注释的 `import infinicore as torch`
