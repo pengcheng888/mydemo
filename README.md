@@ -2,8 +2,8 @@
 
 本仓库展示了类CUDA的"一套代码所有平台"的演示，包括 C三段式接口 和 Python一段式接口的示例。
 
-- **一套代码**：同一份代码可以在多个硬件平台上运行，具备的跨平台兼容性。
-- **多平台支持**：支持 CPU、NVIDIA、METAX 和 ILUVATAR
+- **一套代码**：同一份代码可以在多个硬件平台上运行，具备的跨平台兼容性
+- **多平台支持**：支持 CPU、NVIDIA、METAX、 ILUVATAR、 HYGON
 - **C++ 三段式接口**： InfiniOP API 模式（创建描述符 → 获取工作空间 → 执行）
 - **Python 接口**： 对齐pytorch的 InfiniCore API
 
@@ -29,13 +29,14 @@ mydemo/
 - 安装 C++ 库
 - 安装 Python 包
 
-克隆本仓库 `InfiniDemo`
+#### 二、克隆`InfiniDemo`仓库
+
 ```shell
 git clone  https://github.com/InfiniTensor/InfiniDemo.git
 ```
 
-#### 二、 运行 C++ 示例
-执行 GEMM 计算：`C = alpha * A * B + beta * C`
+#### 三、 运行 C++ 示例
+执行 GEMM 算子计算：`C = alpha * A * B + beta * C`
 
 ```bash
 xmake run examples [--cpu | --nvidia | --metax | --moore | --iluvatar]
@@ -45,7 +46,13 @@ xmake run examples [--cpu | --nvidia | --metax | --moore | --iluvatar]
 xmake run examples  --nvidia
 ```
 
-#### 三、 运行 Python++ 示例
+![image](https://github.com/pengcheng888/mydemo/blob/main/resources/c_cpu.png)
+
+![image](https://github.com/pengcheng888/mydemo/blob/main/resources/c_nvidia.png)
+
+
+
+#### 四、 运行 Python 示例
 执行 MLP推理计算
 ```bash
 python examples.py [--cpu | --nvidia | --metax | --moore | --iluvatar]
@@ -54,6 +61,43 @@ python examples.py [--cpu | --nvidia | --metax | --moore | --iluvatar]
 ```bash
 python examples.py --nvidia
 ```
+![image](https://github.com/pengcheng888/mydemo/blob/main/resources/py_cpu.png)
+
+![image](https://github.com/pengcheng888/mydemo/blob/main/resources/py_nvidia.png)
+
+## 各平台测试情况
+有7个pr需要合并:
+
+(1) 修复hygon的cuda_fp8文件找不到
+https://github.com/InfiniTensor/InfiniCore/pull/865
+
+(2) 沐曦平台的出现循环import，文件和类名歧义
+https://github.com/InfiniTensor/InfiniCore/pull/944
+
+(3) 添加infinicore.tensor函数
+ https://github.com/InfiniTensor/InfiniCore/pull/894
+
+(4) 为nn.module添加to函数
+https://github.com/InfiniTensor/InfiniCore/pull/891
+
+(5) 为c++和python中的tensor添加打印函数
+https://github.com/InfiniTensor/InfiniCore/pull/930
+
+(6) 修复 fix TG-V200，但不确定150还能不能跑
+https://github.com/InfiniTensor/InfiniCore/pull/633
+
+(7) 海光平台添加silu和mul算子 ?
+
+合并后的测试：
+
+- NVIDIA : 符合预期
+- METAX ： 符合预期
+- HYGON ： 符合预期
+- ILUVATAR ： 符合预期
+- MOORE ： 结果对，但出了结果会卡住一会命令行才结束，然后报段错误之类的
+
+
+
 
 ## 该仓库的任务需求
 1. **三段式接口演示**：一个简单的 C++ 程序，调用 InfiniOP 矩阵乘法接口并打印输入/输出
