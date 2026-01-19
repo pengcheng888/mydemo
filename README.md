@@ -68,25 +68,37 @@ python examples.py --nvidia
 ## 各平台测试情况
 有7个pr需要合并:
 
-(1) 修复hygon的cuda_fp8文件找不到
+(1)【祝悦】 修复hygon的cuda_fp8文件找不到
+
 https://github.com/InfiniTensor/InfiniCore/pull/865
 
-(2) 沐曦平台的出现循环import，文件和类名歧义
-https://github.com/InfiniTensor/InfiniCore/pull/944
+(2)【】海光平台添加silu和mul算子
 
-(3) 添加infinicore.tensor函数
- https://github.com/InfiniTensor/InfiniCore/pull/894
+ 暂无pr
 
-(4) 为nn.module添加to函数
-https://github.com/InfiniTensor/InfiniCore/pull/891
+(3)【朱爽】修复天数 TG-V200平台算子精度问题 (但不确定150还能不能跑) 
 
-(5) 为c++和python中的tensor添加打印函数
-https://github.com/InfiniTensor/InfiniCore/pull/930
-
-(6) 修复 fix TG-V200，但不确定150还能不能跑
 https://github.com/InfiniTensor/InfiniCore/pull/633
 
-(7) 海光平台添加silu和mul算子 ?
+(4)【王鹏程】沐曦平台的出现循环import，文件和类名歧义
+
+https://github.com/InfiniTensor/InfiniCore/pull/944
+
+(5)【王鹏程】 添加infinicore.tensor函数
+
+ https://github.com/InfiniTensor/InfiniCore/pull/894
+
+(6)【王鹏程】 为nn.module添加to函数
+
+https://github.com/InfiniTensor/InfiniCore/pull/891
+
+(7)【王鹏程】 为c++和python中的tensor添加打印函数
+
+https://github.com/InfiniTensor/InfiniCore/pull/930
+
+
+
+
 
 合并后的测试：
 
