@@ -87,7 +87,7 @@ if __name__ == "__main__":
 
     # 创建模型实例
 
-    model_path = "/home/ubuntu/models/resnet/resnet-18-mnist/"
+    model_path = "../resnet-18-mnist/"
     model = ResNetForImageClassification.from_pretrained(model_path)
     print(f"模型创建成功: {model}")   
     if False:
@@ -131,7 +131,7 @@ if __name__ == "__main__":
  
         with np.printoptions(threshold=np.inf, formatter={'int_kind': lambda x: "*" if x == 1 else " "}):
             print(picture)
-        print(f"预测类别: {predict_class} , 预测概率: {round(predict_probs.item(), 3)} , 真实类别: {test_label}\n\n")
+        print(f"预测类别: {predict_class.item()}, 预测概率: {round(predict_probs.item(), 3)},   真实类别: {test_label}\n\n")
         
         if False:
             import cv2
