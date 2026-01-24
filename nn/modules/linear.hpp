@@ -34,8 +34,8 @@ public:
     if (bias) {
       INFINICORE_NN_PARAMETER_INIT(bias, ({out_features}, dtype_, device_));
     } else {
-      bias_ =
-          infinicore::nn::Parameter(); // Default constructed empty parameter
+      // Default constructed empty parameter
+      bias_ = infinicore::nn::Parameter();
     }
   }
 

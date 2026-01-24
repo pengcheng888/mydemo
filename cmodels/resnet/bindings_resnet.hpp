@@ -29,38 +29,12 @@ inline void bind_resnet_model(py::module_ &m) {
           "load_state_dict",
           [](ResNetForImageClassification &self, py::dict _state_dict) -> void {
             std::unordered_map<std::string, infinicore::Tensor> state_dict;
-
             for (auto item : _state_dict) {
               std::string key = py::cast<std::string>(item.first);
               py::object value_obj =
                   py::reinterpret_borrow<py::object>(item.second);
-
-              infinicore::Tensor tensor_value;
-              bool converted = false;
-
-              if (py::hasattr(value_obj, "_underlying")) {
-                try {
-                  py::object underlying = value_obj.attr("_underlying");
-                  tensor_value = py::cast<infinicore::Tensor>(underlying);
-                  converted = true;
-                } catch (...) {
-                }
-              }
-
-              if (!converted) {
-                try {
-                  tensor_value = py::cast<infinicore::Tensor>(value_obj);
-                  converted = true;
-                } catch (const py::cast_error &) {
-                }
-              }
-
-              if (!converted) {
-                throw std::runtime_error("Cannot convert value for key '" +
-                                         key + "' to Tensor");
-              }
-
-              state_dict[key] = tensor_value;
+              state_dict[key] =
+                  py::cast<infinicore::Tensor>(value_obj.attr("_underlying"));
             }
 
             self.load_state_dict(state_dict);

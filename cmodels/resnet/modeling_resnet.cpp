@@ -24,8 +24,8 @@ public:
 
 private:
   void to_device_(const Device &device) override {
-    static_cast<infinidemo::nn::modules::Module *>(convolution_.get())
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &conv_ref = *convolution_;
+    conv_ref.to_device_(device);
   }
 
 protected:
@@ -60,11 +60,12 @@ public:
 
 private:
   void to_device_(const Device &device) override {
-    static_cast<infinidemo::nn::modules::Module *>(convolution_.get())
-        ->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(&relu_)->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(&identity_)
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &conv_ref = *convolution_;
+    conv_ref.to_device_(device);
+    infinidemo::nn::modules::Module &relu_ref = relu_;
+    relu_ref.to_device_(device);
+    infinidemo::nn::modules::Module &identity_ref = identity_;
+    identity_ref.to_device_(device);
   }
 
 protected:
@@ -127,18 +128,19 @@ public:
 private:
   void to_device_(const Device &device) override {
     if (should_apply_shortcut_) {
-      static_cast<infinidemo::nn::modules::Module *>(shortcut_.get())
-          ->to_device_(device);
+      infinidemo::nn::modules::Module &shortcut_ref = *shortcut_;
+      shortcut_ref.to_device_(device);
     }
 
     for (auto &layer_module : layer_) {
-      static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
-          ->to_device_(device);
+      infinidemo::nn::modules::Module &layer_ref = *layer_module;
+      layer_ref.to_device_(device);
     }
 
-    static_cast<infinidemo::nn::modules::Module *>(&relu_)->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(&identity_)
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &relu_ref = relu_;
+    relu_ref.to_device_(device);
+    infinidemo::nn::modules::Module &identity_ref = identity_;
+    identity_ref.to_device_(device);
   }
 
 protected:
@@ -209,16 +211,17 @@ public:
 private:
   void to_device_(const Device &device) override {
     if (should_apply_shortcut_) {
-      static_cast<infinidemo::nn::modules::Module *>(shortcut_.get())
-          ->to_device_(device);
+      infinidemo::nn::modules::Module &shortcut_ref = *shortcut_;
+      shortcut_ref.to_device_(device);
     }
     for (auto &layer_module : layer_) {
-      static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
-          ->to_device_(device);
+      infinidemo::nn::modules::Module &layer_ref = *layer_module;
+      layer_ref.to_device_(device);
     }
-    static_cast<infinidemo::nn::modules::Module *>(&relu_)->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(&identity_)
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &relu_ref = relu_;
+    relu_ref.to_device_(device);
+    infinidemo::nn::modules::Module &identity_ref = identity_;
+    identity_ref.to_device_(device);
   }
 
 protected:
@@ -325,13 +328,13 @@ private:
   void to_device_(const Device &device) override {
     if (layer_type_ == "bottleneck") {
       for (auto &layer_module : layers_bottleneck_) {
-        static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
-            ->to_device_(device);
+        infinidemo::nn::modules::Module &layer_ref = *layer_module;
+        layer_ref.to_device_(device);
       }
     } else if (layer_type_ == "basic") {
       for (auto &layer_module : layers_basic_) {
-        static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
-            ->to_device_(device);
+        infinidemo::nn::modules::Module &layer_ref = *layer_module;
+        layer_ref.to_device_(device);
       }
     }
   }
@@ -384,8 +387,8 @@ public:
 private:
   void to_device_(const Device &device) override {
     for (auto &stage_module : stages_) {
-      static_cast<infinidemo::nn::modules::Module *>(stage_module.get())
-          ->to_device_(device);
+      infinidemo::nn::modules::Module &stage_ref = *stage_module;
+      stage_ref.to_device_(device);
     }
   }
 
@@ -422,10 +425,10 @@ public:
 
 private:
   void to_device_(const Device &device) override {
-    static_cast<infinidemo::nn::modules::Module *>(embedder_.get())
-        ->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(pooler_.get())
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &embedder_ref = *embedder_;
+    embedder_ref.to_device_(device);
+    infinidemo::nn::modules::Module &pooler_ref = *pooler_;
+    pooler_ref.to_device_(device);
   }
 
 protected:
@@ -458,12 +461,12 @@ public:
 
 private:
   void to_device_(const Device &device) override {
-    static_cast<infinidemo::nn::modules::Module *>(embedder_.get())
-        ->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(encoder_.get())
-        ->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(pooler_.get())
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &embedder_ref = *embedder_;
+    embedder_ref.to_device_(device);
+    infinidemo::nn::modules::Module &encoder_ref = *encoder_;
+    encoder_ref.to_device_(device);
+    infinidemo::nn::modules::Module &pooler_ref = *pooler_;
+    pooler_ref.to_device_(device);
   }
 
 protected:
@@ -494,14 +497,14 @@ ResNetForImageClassification::ResNetForImageClassification(
 }
 
 void ResNetForImageClassification::to_device_(const Device &device) {
-
-  static_cast<infinidemo::nn::modules::Module *>(resnet_.get())
-      ->to_device_(device);
+  infinidemo::nn::modules::Module &resnet_ref = *resnet_;
+  resnet_ref.to_device_(device);
   for (auto &classifier_module : classifier_) {
-    static_cast<infinidemo::nn::modules::Module *>(classifier_module.get())
-        ->to_device_(device);
+    infinidemo::nn::modules::Module &classifier_ref = *classifier_module;
+    classifier_ref.to_device_(device);
   }
-  static_cast<infinidemo::nn::modules::Module *>(&flatten_)->to_device_(device);
+  infinidemo::nn::modules::Module &flatten_ref = flatten_;
+  flatten_ref.to_device_(device);
   device_ = device;
 }
 
@@ -509,7 +512,6 @@ Tensor ResNetForImageClassification::forward(Tensor &pixel_values) {
   if (pixel_values->device() != device_) {
     throw std::runtime_error("Device mismatch");
   }
-
   Tensor outputs = resnet_->forward(pixel_values);
   Tensor pooled_output = flatten_.forward(outputs);
   Tensor logits = classifier_[0]->forward(pooled_output);

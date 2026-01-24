@@ -21,9 +21,12 @@ public:
 
 private:
   void to_device_(const Device &device) override {
-    static_cast<infinidemo::nn::modules::Module *>(fc1_.get())->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(conv1_.get())->to_device_(device);
-    static_cast<infinidemo::nn::modules::Module *>(&relu_)->to_device_(device);
+    infinidemo::nn::modules::Module &fc1_ref = *fc1_;
+    fc1_ref.to_device_(device);
+    infinidemo::nn::modules::Module &conv1_ref = *conv1_;
+    conv1_ref.to_device_(device);
+    infinidemo::nn::modules::Module &relu_ref = relu_;
+    relu_ref.to_device_(device);
   }
 
 protected:
