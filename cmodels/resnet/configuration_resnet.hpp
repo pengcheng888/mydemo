@@ -18,7 +18,8 @@ struct ResNetConfig {
   int num_channels = 3;
   std::string torch_dtype = "float32";
   std::string transformers_version = "4.18.0.dev0";
-  int num_labels = -1; // Additional parameters
+  int num_labels = -1;                   // Additional parameters
+  bool downsample_in_bottleneck = false; // Additional parameters
 };
 
 inline std::ostream &operator<<(std::ostream &os, const ResNetConfig &config) {
@@ -48,6 +49,10 @@ inline std::ostream &operator<<(std::ostream &os, const ResNetConfig &config) {
   // downsample_in_first_stage
   os << indent << "\"downsample_in_first_stage\": "
      << (config.downsample_in_first_stage ? "true" : "false") << ",\n";
+
+  // downsample_in_bottleneck
+  os << indent << "\"downsample_in_bottleneck\": "
+     << (config.downsample_in_bottleneck ? "true" : "false") << ",\n";
 
   // embedding_size
   os << indent << "\"embedding_size\": " << config.embedding_size << ",\n";

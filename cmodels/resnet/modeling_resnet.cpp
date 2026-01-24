@@ -71,11 +71,11 @@ protected:
   INFINICORE_NN_MODULE(infinidemo::nn::modules::Conv2d, convolution);
   infinidemo::nn::modules::ReLU relu_;
   infinidemo::nn::modules::Identity identity_;
-  int in_channels_;
-  int out_channels_;
-  int kernel_size_;
-  int stride_;
-  std::string activation_;
+  const int in_channels_;
+  const int out_channels_;
+  const int kernel_size_;
+  const int stride_;
+  const std::string activation_;
 };
 
 class ResNetBasicLayer : public infinidemo::nn::modules::Module {
@@ -146,50 +146,202 @@ protected:
   INFINICORE_NN_MODULE_VEC(ResNetConvLayer, layer);
   infinidemo::nn::modules::ReLU relu_;
   infinidemo::nn::modules::Identity identity_;
-  std::string activation_;
+  const std::string activation_;
   bool should_apply_shortcut_;
 };
 
-class ResNetStage : public infinidemo::nn::modules::Module {
+class ResNetBottleNeckLayer : public infinidemo::nn::modules::Module {
 public:
-  ResNetStage(const ResNetConfig &config, int in_channels, int out_channels,
-              int stride = 2, int depth = 2,
-              const DataType &dtype = DataType::F32) {
-    if (config.layer_type == "bottleneck") {
-      throw std::runtime_error("Bottleneck layer is not supported");
+  ResNetBottleNeckLayer(int in_channels, int out_channels, int stride = 1,
+                        const std::string activation = "relu",
+                        int reduction = 4,
+                        bool downsample_in_bottleneck = false,
+                        const DataType &dtype = DataType::F32)
+      : activation_(activation) {
+    should_apply_shortcut_ = (in_channels != out_channels) || (stride != 1);
+    int reduces_channels = out_channels / reduction;
+
+    if (should_apply_shortcut_) {
+      INFINICORE_NN_MODULE_INIT(shortcut, in_channels, out_channels, stride,
+                                dtype);
     }
 
-    layers_.reserve(depth);
-    layers_.push_back(this->register_module<ResNetBasicLayer>(
-        "layers." + std::to_string(0), in_channels, out_channels, stride,
-        config.hidden_act, dtype));
+    layer_.reserve(3);
+    int first_stride = downsample_in_bottleneck ? stride : 1;
+    int second_stride = downsample_in_bottleneck ? 1 : stride;
 
-    for (int i = 1; i < depth; ++i) {
-      layers_.push_back(this->register_module<ResNetBasicLayer>(
-          "layers." + std::to_string(i), out_channels, out_channels, 1,
-          config.hidden_act, dtype));
-    }
+    layer_.push_back(this->register_module<ResNetConvLayer>(
+        "layer." + std::to_string(0), in_channels, reduces_channels, 1,
+        first_stride, "relu", dtype));
+    layer_.push_back(this->register_module<ResNetConvLayer>(
+        "layer." + std::to_string(1), reduces_channels, reduces_channels, 3,
+        second_stride, "relu", dtype));
+    layer_.push_back(this->register_module<ResNetConvLayer>(
+        "layer." + std::to_string(2), reduces_channels, out_channels, 1, 1, "",
+        dtype));
   }
 
-  inline Tensor forward(Tensor &input) const {
-    Tensor hidden_state = input;
-    size_t num_layers = layers_.size();
+  inline Tensor forward(Tensor &hidden_state) const {
+    Tensor residual = Tensor::empty(
+        hidden_state->shape(), hidden_state->dtype(), hidden_state->device());
+    residual->copy_from(hidden_state);
+
+    size_t num_layers = layer_.size();
     for (size_t i = 0; i < num_layers; ++i) {
-      hidden_state = layers_[i]->forward(hidden_state);
+      hidden_state = layer_[i]->forward(hidden_state);
+    }
+
+    if (should_apply_shortcut_) {
+      residual = shortcut_->forward(residual);
+    } else {
+      residual = identity_.forward(residual);
+    }
+
+    hidden_state += residual;
+    if (activation_ == "relu" || activation_ == "ReLU") {
+      hidden_state = relu_.forward(hidden_state);
+    } else {
+      throw std::runtime_error("Invalid activation function: " + activation_);
     }
     return hidden_state;
   }
 
 private:
   void to_device_(const Device &device) override {
-    for (auto &layer_module : layers_) {
+    if (should_apply_shortcut_) {
+      static_cast<infinidemo::nn::modules::Module *>(shortcut_.get())
+          ->to_device_(device);
+    }
+    for (auto &layer_module : layer_) {
       static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
           ->to_device_(device);
+    }
+    static_cast<infinidemo::nn::modules::Module *>(&relu_)->to_device_(device);
+    static_cast<infinidemo::nn::modules::Module *>(&identity_)
+        ->to_device_(device);
+  }
+
+protected:
+  INFINICORE_NN_MODULE(ResNetShortCut, shortcut);
+  INFINICORE_NN_MODULE_VEC(ResNetConvLayer, layer);
+  infinidemo::nn::modules::ReLU relu_;
+  infinidemo::nn::modules::Identity identity_;
+  const std::string activation_;
+  bool should_apply_shortcut_;
+};
+
+// class ResNetStage : public infinidemo::nn::modules::Module {
+// public:
+//   ResNetStage(const ResNetConfig &config, int in_channels, int out_channels,
+//               int stride = 2, int depth = 2,
+//               const DataType &dtype = DataType::F32) {
+//     if (config.layer_type == "bottleneck") {
+//       throw std::runtime_error("Bottleneck layer is not supported");
+//     }
+
+//     layers_.reserve(depth);
+//     layers_.push_back(this->register_module<ResNetBasicLayer>(
+//         "layers." + std::to_string(0), in_channels, out_channels, stride,
+//         config.hidden_act, dtype));
+
+//     for (int i = 1; i < depth; ++i) {
+//       layers_.push_back(this->register_module<ResNetBasicLayer>(
+//           "layers." + std::to_string(i), out_channels, out_channels, 1,
+//           config.hidden_act, dtype));
+//     }
+//   }
+
+//   inline Tensor forward(Tensor &input) const {
+//     Tensor hidden_state = input;
+//     size_t num_layers = layers_.size();
+//     for (size_t i = 0; i < num_layers; ++i) {
+//       hidden_state = layers_[i]->forward(hidden_state);
+//     }
+//     return hidden_state;
+//   }
+
+// private:
+//   void to_device_(const Device &device) override {
+//     for (auto &layer_module : layers_) {
+//       static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
+//           ->to_device_(device);
+//     }
+//   }
+
+// protected:
+//   INFINICORE_NN_MODULE_VEC(ResNetBasicLayer, layers);
+// };
+
+class ResNetStage : public infinidemo::nn::modules::Module {
+public:
+  ResNetStage(const ResNetConfig &config, int in_channels, int out_channels,
+              int stride = 2, int depth = 2,
+              const DataType &dtype = DataType::F32)
+      : layer_type_(config.layer_type) {
+    if (layer_type_ == "bottleneck") {
+      layers_bottleneck_.reserve(depth);
+      layers_bottleneck_.push_back(this->register_module<ResNetBottleNeckLayer>(
+          "layers." + std::to_string(0), in_channels, out_channels, stride,
+          config.hidden_act, 4, config.downsample_in_bottleneck, dtype));
+      for (int i = 1; i < depth; ++i) {
+        layers_bottleneck_.push_back(
+            this->register_module<ResNetBottleNeckLayer>(
+                "layers." + std::to_string(i), out_channels, out_channels, 1,
+                config.hidden_act, 4, false, dtype));
+      }
+    } else if (layer_type_ == "basic") {
+      layers_basic_.reserve(depth);
+      layers_basic_.push_back(this->register_module<ResNetBasicLayer>(
+          "layers." + std::to_string(0), in_channels, out_channels, stride,
+          config.hidden_act, dtype));
+      for (int i = 1; i < depth; ++i) {
+        layers_basic_.push_back(this->register_module<ResNetBasicLayer>(
+            "layers." + std::to_string(i), out_channels, out_channels, 1,
+            config.hidden_act, dtype));
+      }
+    } else {
+      throw std::runtime_error("Invalid layer type: " + layer_type_);
+    }
+  }
+
+  inline Tensor forward(Tensor &input) const {
+    Tensor hidden_state = input;
+
+    if (layer_type_ == "bottleneck") {
+      size_t num_layers = layers_bottleneck_.size();
+      for (size_t i = 0; i < num_layers; ++i) {
+        hidden_state = layers_bottleneck_[i]->forward(hidden_state);
+      }
+    } else if (layer_type_ == "basic") {
+      size_t num_layers = layers_basic_.size();
+      for (size_t i = 0; i < num_layers; ++i) {
+        hidden_state = layers_basic_[i]->forward(hidden_state);
+      }
+    }
+    return hidden_state;
+  }
+
+private:
+  void to_device_(const Device &device) override {
+    if (layer_type_ == "bottleneck") {
+      for (auto &layer_module : layers_bottleneck_) {
+        static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
+            ->to_device_(device);
+      }
+    } else if (layer_type_ == "basic") {
+      for (auto &layer_module : layers_basic_) {
+        static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
+            ->to_device_(device);
+      }
     }
   }
 
 protected:
-  INFINICORE_NN_MODULE_VEC(ResNetBasicLayer, layers);
+  // INFINICORE_NN_MODULE_VEC(std::unique_ptr<infinidemo::nn::modules::Module>,
+  //                          mytest);
+  INFINICORE_NN_MODULE_VEC(ResNetBottleNeckLayer, layers_bottleneck);
+  INFINICORE_NN_MODULE_VEC(ResNetBasicLayer, layers_basic);
+  const std::string layer_type_;
 };
 
 class ResNetEncoder : public infinidemo::nn::modules::Module {
@@ -279,7 +431,7 @@ private:
 protected:
   INFINICORE_NN_MODULE(ResNetConvLayer, embedder);
   INFINICORE_NN_MODULE(infinidemo::nn::modules::Conv2d, pooler);
-  int num_channels_;
+  const int num_channels_;
 };
 
 } // namespace

@@ -34,6 +34,7 @@ class ResNetConfig(_infinidemo.ResNetConfig):
         architectures: Optional[List[str]] = None,
         depths: Optional[List[int]] = None,
         downsample_in_first_stage: bool = False,
+        downsample_in_bottleneck: bool = False,
         embedding_size: int = 64,
         hidden_act: str = "relu",
         hidden_sizes: Optional[List[int]] = None,
@@ -51,6 +52,7 @@ class ResNetConfig(_infinidemo.ResNetConfig):
         if depths is not None:
             self.depths = depths
         self.downsample_in_first_stage = downsample_in_first_stage
+        self.downsample_in_bottleneck = downsample_in_bottleneck
         self.embedding_size = embedding_size
         self.hidden_act = hidden_act
         if hidden_sizes is not None:

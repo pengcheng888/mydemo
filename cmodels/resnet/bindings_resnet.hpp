@@ -102,6 +102,8 @@ inline void bind_resnet_config(py::module_ &m) {
       .def_readwrite("depths", &ResNetConfig::depths)
       .def_readwrite("downsample_in_first_stage",
                      &ResNetConfig::downsample_in_first_stage)
+      .def_readwrite("downsample_in_bottleneck",
+                     &ResNetConfig::downsample_in_bottleneck)
       .def_readwrite("embedding_size", &ResNetConfig::embedding_size)
       .def_readwrite("hidden_act", &ResNetConfig::hidden_act)
       .def_readwrite("hidden_sizes", &ResNetConfig::hidden_sizes)
