@@ -19,7 +19,7 @@ mydemo/
 
 ## 使用方式
 
-
+<!-- pip install opencv-python==4.9.0.80 -->
 #### 一、编译并安装 `InfiniCore`
 编译并安装 `InfiniCore`， 详情见 InfiniCore的 [`README`](https://github.com/InfiniTensor/InfiniCore) :
 

@@ -6,7 +6,7 @@ import torch.nn.functional as F
 import os
 from pymodels.modeling_utils import infini_to_numpy
 from pymodels import ResNetForImageClassification
-import cv2
+import torch
 
 def selectDevice():
     import argparse
@@ -46,7 +46,11 @@ def selectDevice():
 
     return infinicore.device(device_str, 0)
 
-
+def softmax(x, axis=-1):
+    # 1. 减去最大值（溢出保护）
+    e_x = np.exp(x - np.max(x, axis=axis, keepdims=True))
+    # 2. 计算比例
+    return e_x / np.sum(e_x, axis=axis, keepdims=True)
 
 def func1():
     device = selectDevice()
@@ -86,14 +90,13 @@ if __name__ == "__main__":
     model_path = "/home/ubuntu/models/resnet/resnet-18-mnist/"
     model = ResNetForImageClassification.from_pretrained(model_path)
     print(f"模型创建成功: {model}")   
-    if True:
+    if False:
         state_dict = model.state_dict()
         keys = sorted(state_dict.keys())
         for key in keys:
             print(f"{key}: {state_dict[key].shape}", state_dict[key].dtype, state_dict[key].device)
             # print(f"{state_dict[key]}")
   
-
     # 创建输入tensor
     input_tensor = infinicore.from_numpy(
         np.ones((1, 3,224,224)).astype(np.float32),
@@ -107,6 +110,7 @@ if __name__ == "__main__":
     model.to(device=device)
     for i in range(10):
         test_image, test_label = test_dataset[i]
+        picture = ((test_image.squeeze(0)*250).to(torch.uint8)> 100).to(torch.uint8).numpy() 
         test_image = test_image.unsqueeze(0)  # Add batch dimension
         if True:
             test_image = F.interpolate(
@@ -119,15 +123,18 @@ if __name__ == "__main__":
         input_tensor = infinicore.from_torch(test_image)
         predict = model.forward(input_tensor.to(device))
         # print(f"输出tensor: {predict}")
-        
-        predict_np = infini_to_numpy(predict)
-        predict_class = np.argmax(predict_np, axis=-1)
-        print(f"预测类别: {predict_class} , 真实类别: {test_label}")
 
-        if True:
+        predict_np = infini_to_numpy(predict)
+        predict_np = softmax(predict_np)
+        predict_class = np.argmax(predict_np, axis=-1)
+        predict_probs = np.max(predict_np, axis=-1)   
+ 
+        with np.printoptions(threshold=np.inf, formatter={'int_kind': lambda x: "*" if x == 1 else " "}):
+            print(picture)
+        print(f"预测类别: {predict_class} , 预测概率: {round(predict_probs.item(), 3)} , 真实类别: {test_label}\n\n")
+        
+        if False:
+            import cv2
             image = (test_image[0].permute(1, 2, 0) * 255).numpy().astype(np.uint8)
             cv2.imshow("test_image", image)
             cv2.waitKey()
-
-
-
