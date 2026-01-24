@@ -32,3 +32,6 @@ cache/
 *.gz
 *.zip
 *.tar
+.clangd
+IDE_SETUP.md
+model-mnist.safetensors
