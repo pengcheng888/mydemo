@@ -131,7 +131,9 @@ if __name__ == "__main__":
  
         with np.printoptions(threshold=np.inf, formatter={'int_kind': lambda x: "*" if x == 1 else " "}):
             print(picture)
-        print(f"预测类别: {predict_class.item()}, 预测概率: {round(predict_probs.item(), 3)},   真实类别: {test_label}\n\n")
+        predict_class = predict_class.item()
+
+        print(f" 预测{ "正确" if predict_class==test_label else  "错误"}  预测类别: {predict_class}, 预测概率: {round(predict_probs.item(), 3)},   真实类别: {test_label}\n\n")
         
         if False:
             import cv2

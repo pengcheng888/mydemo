@@ -14,6 +14,7 @@ except (FileNotFoundError, ImportError) as e:
 class ResNetForImageClassification(_infinidemo.ResNetForImageClassification):
     def __init__(self,config):
         super().__init__(config)
+        self.config = config
         # self.num_labels = config.num_labels
     
     def forward(self, input:infinicore.Tensor):

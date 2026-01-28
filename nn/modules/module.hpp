@@ -12,6 +12,7 @@ namespace infinidemo::nn::modules {
 using namespace infinicore;
 class Module : public infinicore::nn::Module {
 public:
+  virtual ~Module() = default;
   virtual void to_device_(const Device &device) = 0;
 };
 } // namespace infinidemo::nn::modules

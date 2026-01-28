@@ -8,6 +8,9 @@ import sys
 import os
 import importlib.util
 
+# 模块缓存，避免重复加载
+_loaded_modules = {}
+
 
 def load_module(module_name, build_dir=None, project_dir=None):
     """
@@ -74,6 +77,21 @@ def load_module(module_name, build_dir=None, project_dir=None):
         error_msg += "\n请先运行 'xmake' 构建项目"
         raise FileNotFoundError(error_msg)
     
+    # 检查模块是否已经加载（避免重复加载导致pybind11类型重复注册）
+    # 首先检查 sys.modules，这是Python的标准模块缓存
+    if module_name in sys.modules:
+        module = sys.modules[module_name]
+        # 同时更新我们的缓存
+        _loaded_modules[module_name] = module
+        return module
+    
+    # 检查我们的缓存
+    if module_name in _loaded_modules:
+        module = _loaded_modules[module_name]
+        # 确保也在 sys.modules 中
+        sys.modules[module_name] = module
+        return module
+    
     # 使用importlib动态加载模块
     try:
         spec = importlib.util.spec_from_file_location(module_name, module_path)
@@ -81,7 +99,14 @@ def load_module(module_name, build_dir=None, project_dir=None):
             raise ImportError(f"无法创建模块规范: {module_name}")
         
         module = importlib.util.module_from_spec(spec)
+        # 先注册到 sys.modules，避免循环导入问题
+        sys.modules[module_name] = module
         spec.loader.exec_module(module)
+        # 缓存模块（基于模块名）
+        _loaded_modules[module_name] = module
         return module
     except Exception as e:
+        # 如果加载失败，从 sys.modules 中移除
+        if module_name in sys.modules:
+            del sys.modules[module_name]
         raise ImportError(f"加载模块失败: {module_name}\n错误: {e}")

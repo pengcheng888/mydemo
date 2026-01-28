@@ -1,6 +1,7 @@
 #include "modeling_resnet.hpp"
 #include "../../nn/modules/conv.hpp"
 #include "../../nn/modules/module.hpp"
+#include "../../nn/modules/pooling.hpp"
 #include "../../nn/modules/relu.hpp"
 #include <stdexcept>
 #include <string>
@@ -14,7 +15,7 @@ public:
   ResNetShortCut(int in_channels, int out_channels, int stride = 2,
                  const DataType &dtype = DataType::F32) {
     INFINICORE_NN_MODULE_INIT(convolution, in_channels, out_channels, 1, stride,
-                              0, 1, 1, false, dtype);
+                              0, 1, 1, true, dtype);
   }
 
   inline Tensor forward(Tensor &input) const {
@@ -41,7 +42,7 @@ public:
         kernel_size_(kernel_size), stride_(stride), activation_(activation) {
     INFINICORE_NN_MODULE_INIT(convolution, in_channels_, out_channels_,
                               kernel_size_, stride_, kernel_size_ / 2, 1, 1,
-                              false, dtype);
+                              true, dtype);
   }
 
   inline Tensor forward(Tensor &input) const {
@@ -233,48 +234,6 @@ protected:
   bool should_apply_shortcut_;
 };
 
-// class ResNetStage : public infinidemo::nn::modules::Module {
-// public:
-//   ResNetStage(const ResNetConfig &config, int in_channels, int out_channels,
-//               int stride = 2, int depth = 2,
-//               const DataType &dtype = DataType::F32) {
-//     if (config.layer_type == "bottleneck") {
-//       throw std::runtime_error("Bottleneck layer is not supported");
-//     }
-
-//     layers_.reserve(depth);
-//     layers_.push_back(this->register_module<ResNetBasicLayer>(
-//         "layers." + std::to_string(0), in_channels, out_channels, stride,
-//         config.hidden_act, dtype));
-
-//     for (int i = 1; i < depth; ++i) {
-//       layers_.push_back(this->register_module<ResNetBasicLayer>(
-//           "layers." + std::to_string(i), out_channels, out_channels, 1,
-//           config.hidden_act, dtype));
-//     }
-//   }
-
-//   inline Tensor forward(Tensor &input) const {
-//     Tensor hidden_state = input;
-//     size_t num_layers = layers_.size();
-//     for (size_t i = 0; i < num_layers; ++i) {
-//       hidden_state = layers_[i]->forward(hidden_state);
-//     }
-//     return hidden_state;
-//   }
-
-// private:
-//   void to_device_(const Device &device) override {
-//     for (auto &layer_module : layers_) {
-//       static_cast<infinidemo::nn::modules::Module *>(layer_module.get())
-//           ->to_device_(device);
-//     }
-//   }
-
-// protected:
-//   INFINICORE_NN_MODULE_VEC(ResNetBasicLayer, layers);
-// };
-
 class ResNetStage : public infinidemo::nn::modules::Module {
 public:
   ResNetStage(const ResNetConfig &config, int in_channels, int out_channels,
@@ -309,7 +268,6 @@ public:
 
   inline Tensor forward(Tensor &input) const {
     Tensor hidden_state = input;
-
     if (layer_type_ == "bottleneck") {
       size_t num_layers = layers_bottleneck_.size();
       for (size_t i = 0; i < num_layers; ++i) {
@@ -405,10 +363,7 @@ public:
     INFINICORE_NN_MODULE_INIT(embedder, config.num_channels,
                               config.embedding_size, 7, 2, config.hidden_act,
                               dtype);
-
-    INFINICORE_NN_MODULE_INIT(pooler, config.embedding_size,
-                              config.embedding_size, 3, 2, 1, 1, 1, false,
-                              dtype);
+    INFINICORE_NN_MODULE_INIT(pooler, 3, 2, 1, 1, false, dtype);
   }
 
   inline Tensor forward(Tensor &pixel_values) const {
@@ -433,7 +388,7 @@ private:
 
 protected:
   INFINICORE_NN_MODULE(ResNetConvLayer, embedder);
-  INFINICORE_NN_MODULE(infinidemo::nn::modules::Conv2d, pooler);
+  INFINICORE_NN_MODULE(infinidemo::nn::modules::MaxPool2d, pooler);
   const int num_channels_;
 };
 
@@ -448,7 +403,7 @@ public:
               const DataType &dtype = DataType::F32) {
     INFINICORE_NN_MODULE_INIT(embedder, config, dtype);
     INFINICORE_NN_MODULE_INIT(encoder, config, dtype);
-    INFINICORE_NN_MODULE_INIT(pooler, 512, 512, 7, 1, 0, 1, 1, false,
+    INFINICORE_NN_MODULE_INIT(pooler, 7, 1, 0, false,
                               dtype); // 512 需要修改
   }
 
@@ -472,7 +427,7 @@ private:
 protected:
   INFINICORE_NN_MODULE(::ResNetEmbeddings, embedder);
   INFINICORE_NN_MODULE(::ResNetEncoder, encoder);
-  INFINICORE_NN_MODULE(infinidemo::nn::modules::Conv2d, pooler);
+  INFINICORE_NN_MODULE(infinidemo::nn::modules::AvgPool2d, pooler);
 };
 
 ResNetForImageClassification::ResNetForImageClassification(
@@ -515,6 +470,8 @@ Tensor ResNetForImageClassification::forward(Tensor &pixel_values) {
   Tensor outputs = resnet_->forward(pixel_values);
   Tensor pooled_output = flatten_.forward(outputs);
   Tensor logits = classifier_[0]->forward(pooled_output);
+
+  context::syncDevice();
   return logits;
 }
 

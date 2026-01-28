@@ -68,8 +68,14 @@ class ResNetConfig(_infinidemo.ResNetConfig):
             if hasattr(self, key):
                 setattr(self, key, value)
                 
-            if key=="id2label":
-                self.num_labels = len(value)
+        self.id2label = kwargs.get("id2label", None)
+        self.label2id = kwargs.get("label2id", None)
+        if self.id2label is not None:
+            self.num_labels = len(self.id2label)
+        else:
+            raise ValueError("id2label is not set")
+   
+
 
     @classmethod
     def from_pretrained(cls, json_path: Union[str, os.PathLike]) -> "ResNetConfig":
