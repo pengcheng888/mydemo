@@ -6,27 +6,21 @@
 #include <infinicore/device.hpp>
 #include <infinicore/nn/module.hpp>
 #include <infinicore/tensor.hpp>
-#include <stdexcept>
-#include <string>
+
 namespace infinidemo::nn::modules {
 using namespace infinicore;
 
 class ReLU : public infinidemo::nn::modules::Module {
 public:
-  ReLU() = default;
-  inline Tensor forward(const Tensor &input) const {
-    auto output =
-        Tensor::empty(input->shape(), input->dtype(), input->device());
-
-    // Perform ReLU activation: output = max(0, input)
-    INFINICORE_CHECK_ERROR(infinidemo::nn::functional::performRelu(
-        output, input, input->device()));
-
-    return output;
-  }
+    ReLU() = default;
+    inline Tensor forward(const Tensor &input) const {
+        auto output = Tensor::empty(input->shape(), input->dtype(), input->device());
+        INFINICORE_CHECK_ERROR(infinidemo::nn::functional::performRelu(output, input, input->device()));
+        return output;
+    }
 
 private:
-  void to_device_(const Device &device) override {}
+    void to_device_(const Device &device) override {}
 };
 
 } // namespace infinidemo::nn::modules

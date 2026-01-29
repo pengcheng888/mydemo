@@ -9,6 +9,7 @@ from pymodels.modeling_utils import infini_to_numpy
 from pymodels import ResNetForImageClassification
 import torch
 from transformers import AutoFeatureExtractor
+from transformers import AutoImageProcessor
 
 def selectDevice():
     import argparse
@@ -78,7 +79,7 @@ if __name__ == "__main__":
 
     image = Image.open(image_path).convert("RGB")
 
-    feature_extractor = AutoFeatureExtractor.from_pretrained(model_path)
+    feature_extractor = AutoImageProcessor.from_pretrained(model_path, use_fast=True)
     inputs = feature_extractor(image, return_tensors="pt")["pixel_values"]
 
 
