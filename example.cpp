@@ -31,7 +31,11 @@ Device selectDevice(int argc, char *argv[]) {
         {"--cambricon", Device::Type::CAMBRICON, "Use CAMBRICON device"},
     };
 
-    for (const auto &[flag_name, device_type, help_message] : platforms) {
+    for (const auto &p : platforms) {
+        const char *flag_name = std::get<0>(p);
+        Device::Type device_type = std::get<1>(p);
+        const char *help_message = std::get<2>(p);
+
         app.add_flag(
             flag_name,
             [&device, device_type](bool) { device = Device(device_type); },
