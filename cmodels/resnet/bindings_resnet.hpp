@@ -43,7 +43,6 @@ inline void bind_resnet_model(py::module_ &m) {
                      const infinicore::Tensor &value = pair.second;
                      py_state_dict[key.c_str()] = py::cast(value);
                  }
-
                  return py_state_dict;
              })
         .def("__repr__",

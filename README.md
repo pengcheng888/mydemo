@@ -7,19 +7,10 @@
 - **C++ 三段式接口**： InfiniOP API 模式（创建描述符 → 获取工作空间 → 执行）
 - **Python 接口**： 对齐pytorch的 InfiniCore API
 
-## 项目结构
 
-```
-mydemo/
-├── example.cpp      # C 三段式 InfiniOP API 示例
-├── example.py       # Python一段式 InfiniCore API 示例
-├── xmake.lua
-└── README.md       
-```
 
 ## 使用方式
 
-<!-- pip install opencv-python==4.9.0.80 -->
 #### 一、编译并安装 `InfiniCore`
 编译并安装 `InfiniCore`， 详情见 InfiniCore的 [`README`](https://github.com/InfiniTensor/InfiniCore) :
 
@@ -95,19 +86,6 @@ https://github.com/InfiniTensor/InfiniCore/pull/891
 (7)【王鹏程】 为c++和python中的tensor添加打印函数
 
 https://github.com/InfiniTensor/InfiniCore/pull/930
-
-
-
-
-
-合并后的测试：
-
-- NVIDIA : 符合预期
-- METAX ： 符合预期
-- HYGON ： 符合预期
-- ILUVATAR ： 符合预期
-- MOORE ： 结果对，但出了结果会卡住一会命令行才结束，然后报段错误之类的
-
 
 
 
