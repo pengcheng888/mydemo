@@ -11,22 +11,18 @@
 namespace infinidemo::nn::modules {
 using namespace infinicore;
 
-class ReLU : public infinidemo::nn::modules::Module {
+class ReLU : public infinidemo::nn::modules::Module<> {
 public:
-  ReLU() = default;
-  inline Tensor forward(const Tensor &input) const {
-    auto output =
-        Tensor::empty(input->shape(), input->dtype(), input->device());
+    ReLU() = default;
+    inline Tensor forward(const Tensor &input) const {
+        auto output = Tensor::empty(input->shape(), input->dtype(), input->device());
 
-    // Perform ReLU activation: output = max(0, input)
-    INFINICORE_CHECK_ERROR(infinidemo::nn::functional::performRelu(
-        output, input, input->device()));
+        // Perform ReLU activation: output = max(0, input)
+        INFINICORE_CHECK_ERROR(infinidemo::nn::functional::performRelu(
+            output, input, input->device()));
 
-    return output;
-  }
-
-private:
-  void to_device_(const Device &device) override {}
+        return output;
+    }
 };
 
 } // namespace infinidemo::nn::modules

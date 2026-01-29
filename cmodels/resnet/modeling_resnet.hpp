@@ -15,21 +15,22 @@ namespace infinidemo::models {
 using namespace infinicore;
 class ResNetModel;
 
-class ResNetForImageClassification : public infinidemo::nn::modules::Module {
+class ResNetForImageClassification
+    : public infinidemo::nn::modules::Module<ResNetForImageClassification> {
 public:
-  ResNetForImageClassification(const ResNetConfig &config);
-  Tensor forward(Tensor &pixel_values);
+    ResNetForImageClassification(const ResNetConfig &config);
+    Tensor forward(Tensor &pixel_values);
+
+public:
+    void to_device_(const Device &device) { device_ = device; }
 
 protected:
-  void to_device_(const Device &device) override;
-
-protected:
-  INFINICORE_NN_MODULE(ResNetModel, resnet);
-  INFINICORE_NN_MODULE_VEC(infinidemo::nn::modules::Linear, classifier);
-  infinidemo::nn::modules::Flatten flatten_;
-  ResNetConfig config_;
-  Device device_;
-  int num_labels_;
+    INFINICORE_NN_MODULE(ResNetModel, resnet);
+    INFINICORE_NN_MODULE_VEC(infinidemo::nn::modules::Linear, classifier);
+    infinidemo::nn::modules::Flatten flatten_;
+    ResNetConfig config_;
+    Device device_;
+    int num_labels_;
 };
 
 } // namespace infinidemo::models

@@ -66,11 +66,13 @@ if __name__ == "__main__":
     model = ResNetForImageClassification.from_pretrained(model_path)
     print(f"模型创建成功: {model}")   
     if False:
+        # model.to(device=device)
         state_dict = model.state_dict()
         keys = sorted(state_dict.keys())
         for key in keys:
             print(f"{key}: {state_dict[key].shape}", state_dict[key].dtype, state_dict[key].device)
             # print(f"{state_dict[key]}")
+        # exit(-1)
   
     # 创建输入tensor
     image_path = "../resnet-18-fused/src/cats_image.jpeg"
@@ -86,7 +88,7 @@ if __name__ == "__main__":
     for i in range(1):
         input_tensor = infinicore.from_torch(inputs)
         predict = model.forward(input_tensor.to(device))
-        print(f" 模型输出tensor: {predict}")
+        # print(f" 模型输出tensor: {predict}")
 
         predict_np = infini_to_numpy(predict)
         predict_np = softmax(predict_np)
