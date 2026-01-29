@@ -25,8 +25,9 @@ public:
   inline Tensor forward(Tensor &input) const {
 
     Device original_device = input->device();
-    if(original_device.getType()==Device::Type::HYGON){
-        input = input->to(Device::cpu());
+    if ((original_device.getType() == Device::Type::HYGON) ||
+        (original_device.getType() == Device::Type::MOORE)) {
+      input = input->to(Device::cpu());
     }
 
     int kernel_h = static_cast<int>(kernel_size_);
@@ -46,8 +47,9 @@ public:
     INFINICORE_CHECK_ERROR(infinidemo::nn::functional::performAvgPool2d(
         input, output, kernel_h, kernel_w, stride_h, stride_w, padding_h,
         padding_w, dilation_h, dilation_w, ceil_mode_, input->device()));
-    
-    if(original_device.getType()==Device::Type::HYGON){
+
+    if ((original_device.getType() == Device::Type::HYGON) ||
+        (original_device.getType() == Device::Type::MOORE)) {
       output = output->to(original_device);
     }
     return output;
@@ -121,10 +123,11 @@ public:
 
   inline Tensor forward(Tensor &input) const {
     Device original_device = input->device();
-    if(original_device.getType()==Device::Type::HYGON){
-        input = input->to(Device::cpu());
+    if ((original_device.getType() == Device::Type::HYGON) ||
+        (original_device.getType() == Device::Type::MOORE)) {
+      input = input->to(Device::cpu());
     }
-    
+
     int kernel_h = static_cast<int>(kernel_size_);
     int kernel_w = static_cast<int>(kernel_size_);
     int stride_h = static_cast<int>(stride_);
@@ -143,7 +146,8 @@ public:
         input, output, kernel_h, kernel_w, stride_h, stride_w, padding_h,
         padding_w, dilation_h, dilation_w, ceil_mode_, input->device()));
 
-    if(original_device.getType()==Device::Type::HYGON){
+    if ((original_device.getType() == Device::Type::HYGON) ||
+        (original_device.getType() == Device::Type::MOORE)) {
       output = output->to(original_device);
     }
     return output;
