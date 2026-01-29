@@ -3,32 +3,10 @@ import os
 from typing import Dict, List, Optional, Union
 
 # 导入 C++ 绑定模块
-try:
-    from ..module_loader import load_module
-
-    _infinidemo = load_module("_infinidemo")
-except (FileNotFoundError, ImportError) as e:
-    raise ImportError(
-        f"Failed to load _infinidemo module: {e}\nPlease run 'xmake' to build the project."
-    )
+from ..module_loader import _infinidemo
 
 
 class ResNetConfig(_infinidemo.ResNetConfig):
-    """
-    Attributes:
-        architectures: List of architecture names
-        depths: List of depths for each stage
-        downsample_in_first_stage: Whether to downsample in the first stage
-        embedding_size: Embedding size
-        hidden_act: Hidden activation function name
-        hidden_sizes: List of hidden sizes for each stage
-        layer_type: Layer type
-        model_type: Model type
-        num_channels: Number of input channels
-        torch_dtype: PyTorch data type
-        transformers_version: Transformers library version
-    """
-
     def __init__(
         self,
         architectures: Optional[List[str]] = None,
@@ -46,7 +24,7 @@ class ResNetConfig(_infinidemo.ResNetConfig):
         **kwargs,
     ):
         super().__init__()
-        
+
         if architectures is not None:
             self.architectures = architectures
         if depths is not None:
@@ -67,15 +45,13 @@ class ResNetConfig(_infinidemo.ResNetConfig):
         for key, value in kwargs.items():
             if hasattr(self, key):
                 setattr(self, key, value)
-                
+
         self.id2label = kwargs.get("id2label", None)
         self.label2id = kwargs.get("label2id", None)
         if self.id2label is not None:
             self.num_labels = len(self.id2label)
         else:
             raise ValueError("id2label is not set")
-   
-
 
     @classmethod
     def from_pretrained(cls, json_path: Union[str, os.PathLike]) -> "ResNetConfig":

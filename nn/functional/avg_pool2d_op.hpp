@@ -60,9 +60,6 @@ inline infiniStatus_t performAvgPool2d(const Tensor &tensor_input,
         return status;
     }
 
-    // 同步设备
-    context::syncDevice();
-
     // 清理资源
     infiniopDestroyAvgPool2dDescriptor(pool_desc);
 

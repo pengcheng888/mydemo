@@ -66,9 +66,6 @@ inline infiniStatus_t performConv2D(Tensor &output, const Tensor &input,
         return status;
     }
 
-    // 同步设备
-    context::syncDevice();
-
     // 清理资源
     infiniopDestroyConvDescriptor(conv_desc);
 

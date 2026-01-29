@@ -24,12 +24,10 @@ inline infiniStatus_t performMaxPool2d(const Tensor &tensor_input,
     infiniopMaxPool2dDescriptor_t pool_desc = nullptr;
     infiniStatus_t status = infiniopCreateMaxPool2dDescriptor(
         handle, &pool_desc, tensor_output->desc(), tensor_input->desc(), kernel_h,
-        kernel_w, stride_h, stride_w, padding_h, padding_w, dilation_h,
-        dilation_w, ceil_mode ? 1 : 0);
+        kernel_w, stride_h, stride_w, padding_h, padding_w, dilation_h, dilation_w, ceil_mode ? 1 : 0);
 
     if (status != INFINI_STATUS_SUCCESS) {
-        std::cerr << "Failed to create MaxPool2D descriptor: " << status
-                  << std::endl;
+        std::cerr << "Failed to create MaxPool2D descriptor: " << status << std::endl;
         return status;
     }
 
@@ -59,9 +57,6 @@ inline infiniStatus_t performMaxPool2d(const Tensor &tensor_input,
         infiniopDestroyMaxPool2dDescriptor(pool_desc);
         return status;
     }
-
-    // 同步设备
-    context::syncDevice();
 
     // 清理资源
     infiniopDestroyMaxPool2dDescriptor(pool_desc);

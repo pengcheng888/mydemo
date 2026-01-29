@@ -9,7 +9,6 @@ from tqdm import tqdm
 import infinicore
 
 
-
 def infini_to_numpy(infini_tensor: infinicore.Tensor):
     def infini_to_ctype_dtype(infini_dtype):
         import ctypes
@@ -23,7 +22,9 @@ def infini_to_numpy(infini_tensor: infinicore.Tensor):
         else:
             raise ValueError(f"Unsupported py_dtype: {infini_dtype}")
 
-    infini_tensor_cpu = infinicore.empty_like(infini_tensor, device=infinicore.device("cpu"))
+    infini_tensor_cpu = infinicore.empty_like(
+        infini_tensor, device=infinicore.device("cpu")
+    )
     infini_tensor_cpu.copy_(infini_tensor)
 
     # 获取数据指针和形状信息
@@ -40,7 +41,6 @@ def infini_to_numpy(infini_tensor: infinicore.Tensor):
     np_array = np_flat.reshape(original_shape)
 
     return np.copy(np_array)
-
 
 
 def check_parameters(model_keys: list, already_loaded_keys: list):
@@ -72,7 +72,7 @@ def check_parameters(model_keys: list, already_loaded_keys: list):
 
 
 def load_state_dict(
-    checkpoint_file: Union[str, os.PathLike],  dtype=ml_dtypes.bfloat16
+    checkpoint_file: Union[str, os.PathLike], dtype=ml_dtypes.bfloat16
 ) -> Dict[str, np.ndarray]:
     """
     Reads a `safetensor` checkpoint file. We load the checkpoint on "cpu" by default.
@@ -99,7 +99,6 @@ def load_state_dict(
     return state_dict
 
 
-
 def load_model_state_dict_by_file(
     model: infinicore.nn.Module,
     model_path: str,
@@ -114,10 +113,9 @@ def load_model_state_dict_by_file(
     np_dtype = infinicore.utils.infinicore_to_numpy_dtype(dtype)
     model_keys = model.state_dict().keys()
 
-
     already_loaded_keys = []
     file_list = glob.glob(os.path.join(model_path, "*.safetensors"))
-  
+
     for file_path in tqdm(file_list, desc="Processing files"):
         tqdm.write(f"Processing: {os.path.basename(file_path)}")
 
@@ -136,7 +134,6 @@ def load_model_state_dict_by_file(
 
         model.load_state_dict(model_param_infini, strict=False)
         infinicore.sync_device()
-
 
     check_parameters(model_keys, already_loaded_keys)
 

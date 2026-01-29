@@ -4,11 +4,7 @@ import infinicore
 
 
 # 导入 C++ 绑定模块
-try:
-    from ..module_loader import load_module
-    _infinidemo = load_module("_infinidemo")
-except (FileNotFoundError, ImportError) as e:
-    raise ImportError(f"Failed to load _infinidemo module: {e}\nPlease run 'xmake' to build the project.")
+from ..module_loader import _infinidemo
 
 
 class MnistForImageClassification(_infinidemo.MnistForImageClassification):

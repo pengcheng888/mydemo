@@ -6,9 +6,6 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <sstream>
-#include <string>
-#include <unordered_map>
-#include <vector>
 
 namespace py = pybind11;
 using namespace infinidemo;
@@ -34,15 +31,12 @@ inline void bind_resnet_model(py::module_ &m) {
                     py::object value_obj = py::reinterpret_borrow<py::object>(item.second);
                     state_dict[key] = py::cast<infinicore::Tensor>(value_obj.attr("_underlying"));
                 }
-
                 self.load_state_dict(state_dict);
             },
             py::arg("_state_dict"))
         .def("state_dict",
              [](const ResNetForImageClassification &self) -> py::dict {
-                 std::unordered_map<std::string, infinicore::nn::Parameter>
-                     cpp_state_dict = self.state_dict();
-
+                 std::unordered_map<std::string, infinicore::nn::Parameter> cpp_state_dict = self.state_dict();
                  py::dict py_state_dict;
                  for (const auto &pair : cpp_state_dict) {
                      const std::string &key = pair.first;
@@ -70,10 +64,8 @@ inline void bind_resnet_config(py::module_ &m) {
         .def(py::init<>())
         .def_readwrite("architectures", &ResNetConfig::architectures)
         .def_readwrite("depths", &ResNetConfig::depths)
-        .def_readwrite("downsample_in_first_stage",
-                       &ResNetConfig::downsample_in_first_stage)
-        .def_readwrite("downsample_in_bottleneck",
-                       &ResNetConfig::downsample_in_bottleneck)
+        .def_readwrite("downsample_in_first_stage", &ResNetConfig::downsample_in_first_stage)
+        .def_readwrite("downsample_in_bottleneck", &ResNetConfig::downsample_in_bottleneck)
         .def_readwrite("embedding_size", &ResNetConfig::embedding_size)
         .def_readwrite("hidden_act", &ResNetConfig::hidden_act)
         .def_readwrite("hidden_sizes", &ResNetConfig::hidden_sizes)
@@ -81,8 +73,7 @@ inline void bind_resnet_config(py::module_ &m) {
         .def_readwrite("model_type", &ResNetConfig::model_type)
         .def_readwrite("num_channels", &ResNetConfig::num_channels)
         .def_readwrite("torch_dtype", &ResNetConfig::torch_dtype)
-        .def_readwrite("transformers_version",
-                       &ResNetConfig::transformers_version)
+        .def_readwrite("transformers_version", &ResNetConfig::transformers_version)
         .def_readwrite("num_labels", &ResNetConfig::num_labels)
         .def("__repr__", [](const ResNetConfig &self) {
             std::stringstream ss;

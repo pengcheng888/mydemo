@@ -7,9 +7,6 @@
 #include <infinicore/nn/module.hpp>
 #include <infinicore/tensor.hpp>
 
-#include <stdexcept>
-#include <string>
-
 namespace infinidemo::nn::modules {
 using namespace infinicore;
 

@@ -53,9 +53,6 @@ inline infiniStatus_t performAdd(Tensor &out, const Tensor &input,
         return status;
     }
 
-    // Synchronize device
-    context::syncDevice();
-
     // Clean up resources
     infiniopDestroyAddDescriptor(add_desc);
 

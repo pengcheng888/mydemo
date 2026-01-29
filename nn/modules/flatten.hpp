@@ -11,9 +11,7 @@ using namespace infinicore;
 
 class Flatten : public infinidemo::nn::modules::Module {
 public:
-    Flatten(int start_dim = 1, int end_dim = -1)
-        : start_dim_(start_dim), end_dim_(end_dim) {}
-
+    Flatten(int start_dim = 1, int end_dim = -1) : start_dim_(start_dim), end_dim_(end_dim) {}
     inline Tensor forward(Tensor &input) const {
         const auto &shape = input->shape();
         const int ndim = static_cast<int>(shape.size());

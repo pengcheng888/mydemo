@@ -9,7 +9,6 @@
 #include <infinicore/tensor.hpp>
 #include <iostream>
 #include <stdexcept>
-#include <string>
 #include <vector>
 
 namespace infinidemo::nn::modules {
@@ -17,14 +16,12 @@ using namespace infinicore;
 
 class Conv2d : public infinidemo::nn::modules::Module {
 public:
-    Conv2d(int in_channels, int out_channels, size_t kernel_size,
-           size_t stride = 1, size_t padding = 0, size_t dilation1 = 1,
+    Conv2d(int in_channels, int out_channels, size_t kernel_size, size_t stride = 1, size_t padding = 0, size_t dilation1 = 1,
            int groups = 1, bool bias = true, const DataType &dtype = DataType::F32)
         : in_channels_(in_channels), out_channels_(out_channels), kernel_size_(kernel_size), stride_(stride), padding_(padding),
           dilation_(dilation1), groups_(groups), has_bias_(bias), dtype_(dtype) {
 
-        INFINICORE_NN_PARAMETER_INIT(
-            weight, ({static_cast<size_t>(out_channels), static_cast<size_t>(in_channels), kernel_size, kernel_size}, dtype_, device_));
+        INFINICORE_NN_PARAMETER_INIT(weight, ({static_cast<size_t>(out_channels), static_cast<size_t>(in_channels), kernel_size, kernel_size}, dtype_, device_));
         if (bias) {
             INFINICORE_NN_PARAMETER_INIT(bias, ({static_cast<size_t>(out_channels)}, dtype_, device_));
         } else {
@@ -40,8 +37,7 @@ public:
 
         auto output = Tensor::empty(output_shape, input->dtype(), input->device());
         INFINICORE_CHECK_ERROR(infinidemo::nn::functional::performConv2D(
-            output, input, weight_, bias_, strides, pads, dilations,
-            input->device()));
+            output, input, weight_, bias_, strides, pads, dilations, input->device()));
 
         return output;
     }
@@ -84,7 +80,6 @@ protected:
             size_t output_size = (padded_input - effective_kernel) / stride + 1;
             output_shape.push_back(output_size);
         }
-
         return output_shape;
     }
 

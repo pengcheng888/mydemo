@@ -54,9 +54,6 @@ inline infiniStatus_t performGemm(Tensor &tensor_C, const Tensor &tensor_A,
         return status;
     }
 
-    // Synchronize device
-    context::syncDevice();
-
     // Clean up resources
     infiniopDestroyGemmDescriptor(gemm_desc);
 

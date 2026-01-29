@@ -4,7 +4,6 @@
 #include <infinicore/nn/module.hpp>
 #include <infinicore/tensor.hpp>
 #include <string>
-#include <unordered_map>
 
 #include "../../nn/modules/conv.hpp"
 #include "../../nn/modules/linear.hpp"

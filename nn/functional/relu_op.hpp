@@ -53,9 +53,6 @@ inline infiniStatus_t performRelu(Tensor &output, const Tensor &input,
         return status;
     }
 
-    // 同步设备
-    context::syncDevice();
-
     // 清理资源
     infiniopDestroyReluDescriptor(relu_desc);
 
