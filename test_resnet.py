@@ -5,7 +5,7 @@ from PIL import Image
 from pymodels.modeling_utils import infini_to_numpy
 from pymodels import ResNetForImageClassification
 from transformers import AutoImageProcessor
-
+from print import print_image
 
 def selectDevice():
     platform_to_device = {
@@ -83,4 +83,6 @@ if __name__ == "__main__":
 
         predict_class = predict_class.item()
         predict_name = model.config.id2label[f"{predict_class}"]
+        print_image(image_path, width=120)
+
         print(f" 类别: {predict_name}  概率: {round(predict_probs.item(), 3)}\n")
