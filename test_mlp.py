@@ -1,16 +1,10 @@
-if False:
-    import torch
-    import torch.nn.functional as F
-
-else:
-    import infinicore as torch
-    import infinicore.nn.functional as F
+# import torch
+import infinicore as torch
 
 
 def selectDevice():
     import argparse
     import sys
-
     platform_to_device = {
         "cpu": "cpu",
         "nvidia": "cuda",
@@ -37,7 +31,7 @@ def selectDevice():
 
     args = parser.parse_args()
 
-    device_str = platform_to_device["cpu"]  # 默认值
+    device_str = platform_to_device["cpu"]
     for platform in platform_to_device.keys():
         if getattr(args, platform, False):
             device_str = platform_to_device[platform]
@@ -73,7 +67,7 @@ class Network(torch.nn.Module):
         self.down_proj = torch.nn.Linear(
             intermediate_size, hidden_size, bias=False, dtype=torch.float16
         )
-        self.act_fn = F.silu
+        self.act_fn = torch.nn.functional.silu
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         down_proj = self.down_proj(self.act_fn(self.gate_proj(x)) * self.up_proj(x))

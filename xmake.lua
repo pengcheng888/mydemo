@@ -2,7 +2,7 @@ add_rules("mode.debug", "mode.release")
 add_requires("cli11")
 add_requires("pybind11")
 
-target("example")
+target("test_gemm")
     set_kind("binary")
     -- add_deps("infiniop", "infinirt", "infiniccl")
     set_default(false)
@@ -17,7 +17,7 @@ target("example")
     add_linkdirs(INFINI_ROOT.."/lib")
     add_links("infiniop", "infinirt", "infinicore_cpp_api")
 
-    add_files(os.projectdir().."/example.cpp")
+    add_files(os.projectdir().."/test_gemm.cpp")
     set_installdir(INFINI_ROOT)
 target_end()
 

@@ -1,7 +1,6 @@
 import numpy as np
 import infinicore
 import argparse
-import sys
 from PIL import Image
 from pymodels.modeling_utils import infini_to_numpy
 from pymodels import ResNetForImageClassification
@@ -33,6 +32,15 @@ def selectDevice():
             help=help_msg,
         )
 
+    # image_path = "../resnet-18-fused/src/cats_image.jpeg"
+    # image_path = "../resnet-18-fused/src/dog.jpg"
+    parser.add_argument(
+        f"--image-path",
+        type=str,
+        default= "../resnet-18-fused/src/dog.jpg",
+        help="Image path",
+    )
+
     args = parser.parse_args()
     device_str = platform_to_device["cpu"]  # 默认值
     for platform in platform_to_device.keys():
@@ -40,7 +48,9 @@ def selectDevice():
             device_str = platform_to_device[platform]
             break
 
-    return infinicore.device(device_str, 0)
+    image_path = args.image_path
+
+    return infinicore.device(device_str, 0), image_path
 
 
 def softmax(x, axis=-1):
@@ -49,26 +59,14 @@ def softmax(x, axis=-1):
 
 
 if __name__ == "__main__":
-    device = selectDevice()
+    device, image_path = selectDevice()
     print("current device: ", device)
 
-    # 创建模型实例
+
     model_path = "../resnet-18-fused/"
     model = ResNetForImageClassification.from_pretrained(model_path)
     print(f"模型创建成功: {model}")
-    if False:
-        state_dict = model.state_dict()
-        keys = sorted(state_dict.keys())
-        for key in keys:
-            print(
-                f"{key}: {state_dict[key].shape}",
-                state_dict[key].dtype,
-                state_dict[key].device,
-            )
 
-    # 创建输入图片
-    image_path = "../resnet-18-fused/src/cats_image.jpeg"
-    image_path = "../resnet-18-fused/src/dog.jpg"
     image = Image.open(image_path).convert("RGB")
     feature_extractor = AutoImageProcessor.from_pretrained(model_path, use_fast=True)
     inputs = feature_extractor(image, return_tensors="pt")["pixel_values"]
